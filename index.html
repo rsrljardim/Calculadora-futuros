@@ -5,189 +5,366 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Futuros - Gestão de Risco</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-color: #38bdf8;
-            --danger-color: #ef4444;
-            --border-color: #334155;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 16px;
-            display: flex;
-            justify-content: center;
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: #121212; 
+            color: #e0e0e0; 
+            margin: 0; 
+            padding: 15px; 
+            display: flex; 
+            justify-content: center; 
             align-items: center;
             min-height: 100vh;
         }
-
-        .container {
-            background-color: var(--card-bg);
-            width: 100%;
-            max-width: 480px;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        .calc-container { 
+            background: #1e1e1e; 
+            padding: 20px; 
+            border-radius: 12px; 
+            max-width: 420px; 
+            width: 100%; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.8); 
+            border: 1px solid #333; 
         }
-
-        h2 {
-            text-align: center;
-            font-size: 1.25rem;
-            margin-bottom: 4px;
-            color: var(--text-color);
+        h2 { text-align: center; margin-top: 0; margin-bottom: 20px; color: #f3ba2f; font-size: 20px; }
+        
+        /* Botões Long/Short Otimizados para Celular */
+        .trade-type { display: flex; gap: 10px; margin-bottom: 20px; }
+        .trade-type input { display: none; }
+        .trade-type label { 
+            flex: 1; 
+            text-align: center; 
+            padding: 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            border: 1px solid #444; 
+            background: #2a2a2a; 
+            color: #aaa; 
+            transition: 0.3s; 
+            font-size: 15px;
         }
+        #long:checked + .btn-long { background: #4ade80; color: #121212; border-color: #4ade80; }
+        #short:checked + .btn-short { background: #f87171; color: #121212; border-color: #f87171; }
 
-        h2:first-of-type {
-            color: var(--accent-color);
-            font-size: 1.5rem;
+        .input-group { margin-bottom: 16px; }
+        label.grupo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 14px; color: #aaa; }
+        
+        /* Toggle Deslizante (Switch) */
+        .switch-container { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .switch-container input { display: none; }
+        .switch-label { font-size: 13px; font-weight: bold; color: #555; transition: 0.3s; }
+        .switch-track { position: relative; width: 40px; height: 20px; background: #2a2a2a; border-radius: 10px; border: 1px solid #444; transition: 0.3s; }
+        .switch-thumb { position: absolute; top: 1px; left: 1px; width: 16px; height: 16px; background: #aaa; border-radius: 50%; transition: transform 0.3s ease, background 0.3s; }
+        
+        .switch-container input:not(:checked) ~ #label-pct { color: #f3ba2f; }
+        .switch-container input:not(:checked) ~ .switch-track .switch-thumb { background: #f3ba2f; }
+        
+        .switch-container input:checked ~ #label-usd { color: #f3ba2f; }
+        .switch-container input:checked ~ .switch-track { border-color: #f3ba2f; }
+        .switch-container input:checked ~ .switch-track .switch-thumb { transform: translateX(20px); background: #f3ba2f; }
+
+        /* Inputs em negrito, fonte branca e confortáveis para toque */
+        input[type="text"] { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #444; 
+            border-radius: 6px; 
+            background: #2a2a2a; 
+            color: #ffffff; 
+            font-weight: 600; 
+            box-sizing: border-box; 
+            font-size: 16px; /* Evita zoom automático em iOS */
         }
-
-        .form-group {
-            margin-top: 16px;
+        input:focus { outline: none; border-color: #f3ba2f; }
+        input::placeholder { font-size: 14px; font-weight: normal; color: #777; }
+        
+        .busca-container { display: flex; gap: 8px; }
+        #btn-atualizar { 
+            background: #f3ba2f; 
+            color: #121212; 
+            border: none; 
+            border-radius: 6px; 
+            padding: 0 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.2s;
+            font-size: 14px;
         }
+        #btn-atualizar:hover { background: #e0a800; }
+        
+        input[type="range"] { width: 100%; margin-top: 10px; accent-color: #f3ba2f; height: 8px; }
+        
+        .results { margin-top: 25px; padding: 15px; background: #252525; border-radius: 8px; border: 1px solid #333; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+        .result-item span:last-child { font-weight: 600; color: #4ade80; }
+        .danger { color: #f87171 !important; }
+        .warning { color: #fbbf24 !important; }
+        
+        #api-status { font-size: 12px; color: #aaa; margin-top: 5px; display: block; }
+        #alerta-liq { color: #f87171; font-size: 13px; margin-top: 12px; text-align: center; display: none; font-weight: 600; background: rgba(248, 113, 113, 0.1); padding: 10px; border-radius: 6px; }
 
-        label {
-            display: block;
-            font-size: 0.875rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 1rem;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .results {
-            margin-top: 24px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .result-item {
-            background-color: var(--bg-color);
-            padding: 12px 16px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.95rem;
-        }
-
-        .result-item span {
-            font-weight: bold;
-            color: var(--accent-color);
-        }
-
-        .loss-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--bg-color);
-            padding: 12px 16px;
-            border-radius: 8px;
-        }
-
-        .loss-value {
-            color: var(--danger-color);
-            font-weight: bold;
-        }
-
-        .alert-box {
-            margin-top: 16px;
-            background-color: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--danger-color);
-            color: #fca5a5;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.850rem;
-            text-align: center;
-            display: none; /* Ativar via JS quando necessário */
-        }
-
-        /* Ajustes responsivos adicionais para telas muito pequenas */
-        @media (max-width: 380px) {
-            .container {
-                padding: 12px;
-            }
-            body {
-                padding: 8px;
-            }
+        /* Ajustes específicos para telas muito pequenas */
+        @media (max-width: 360px) {
+            .calc-container { padding: 15px; }
+            body { padding: 5px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>CALCULADORA DE FUTUROS</h2>
-        <h2>Gestão de Risco</h2>
-
-        <div class="form-group">
-            <label for="asset">Ativo</label>
-            <input type="text" id="asset" list="assets-list" placeholder="Digite a sigla ou escolha">
-            <datalist id="assets-list">
-                <option value="Bitcoin">
-                <option value="ETH">
-                <option value="BNB">
-                <option value="XRP">
-                <option value="Solana">
-                <option value="Hyperliquid">
+    <div class="calc-container">
+        <h2>Calculadora Dinâmica</h2>
+        
+        <div class="trade-type">
+            <input type="radio" id="long" name="tipo" value="long" checked>
+            <label for="long" class="btn-long">Comprado (Long)</label>
+            
+            <input type="radio" id="short" name="tipo" value="short">
+            <label for="short" class="btn-short">Vendido (Short)</label>
+        </div>
+        
+        <div class="input-group">
+            <label class="grupo-header">Capital Total ($)</label>
+            <input type="text" id="capital" value="100.00" inputmode="decimal">
+        </div>
+        
+        <div class="input-group">
+            <label class="grupo-header">
+                <span>Risco por Trade</span>
+                <label class="switch-container">
+                    <input type="checkbox" id="risco-tipo-checkbox" onchange="toggleRisco()">
+                    <span class="switch-label" id="label-pct">%</span>
+                    <div class="switch-track">
+                        <div class="switch-thumb"></div>
+                    </div>
+                    <span class="switch-label" id="label-usd">$</span>
+                </label>
+            </label>
+            <input type="text" id="risco" value="1.00" inputmode="decimal">
+        </div>
+        
+        <div class="input-group">
+            <label class="grupo-header">Criptomoeda (Busca ao vivo Binance)</label>
+            <div class="busca-container">
+                <input type="text" id="cripto-busca" list="lista-criptos" placeholder="Ex: BTC, ETH, SOL...">
+                <button id="btn-atualizar" onclick="buscarPreco()">Cotar</button>
+            </div>
+            <span id="api-status">Digite a sigla ou escolha na lista.</span>
+            
+            <datalist id="lista-criptos">
+                <option value="BTCUSDT">Bitcoin</option>
+                <option value="ETHUSDT">ETH</option>
+                <option value="BNBUSDT">BNB</option>
+                <option value="XRPUSDT">XRP</option>
+                <option value="SOLUSDT">Solana</option>
+                <option value="HYPEUSDT">Hyperliquid</option>
             </datalist>
         </div>
-
-        <!-- Demais inputs de configuração (Capital, Alavancagem, Preço de Entrada, Stop) entrariam aqui -->
-
+        
+        <div class="input-group">
+            <label class="grupo-header">Preço de Entrada ($)</label>
+            <input type="text" id="entrada" value="60,000.00" inputmode="decimal">
+        </div>
+        
+        <div class="input-group">
+            <label class="grupo-header">Preço do Stop Loss ($)</label>
+            <input type="text" id="stop" value="58,800.00" inputmode="decimal">
+        </div>
+        
+        <div class="input-group">
+            <label class="grupo-header"><span>Alavancagem</span> <span style="color:#fff; font-weight:bold"><span id="lev-val">10</span>x</span></label>
+            <input type="range" id="alavancagem" min="1" max="100" value="10">
+        </div>
+        
         <div class="results">
-            <div class="result-item">
-                Tamanho da Posição: <span id="pos-size">$0.00</span>
-            </div>
-            <div class="result-item">
-                Margem Exigida: <span id="margin-req">$0.00</span>
-            </div>
+            <div class="result-item">Tamanho da Posição: <span id="res-tamanho">$0.00</span></div>
+            <div class="result-item">Margem Exigida: <span id="res-margem">$0.00</span></div>
             
-            <div class="loss-box">
-                <div>
-                    <span>Perda Financeira Fixa:</span><br>
-                    <span class="loss-value">-$0.00</span>
+            <div class="result-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; width: 100%;">
+                    <span>Perda Financeira Fixa:</span>
+                    <span id="res-perda" class="danger">-$0.00</span>
                 </div>
-                <div>
-                    <span class="loss-value">-0.00%</span>
+                <div style="display: flex; justify-content: flex-end; width: 100%;">
+                    <span id="res-perda-pct" class="danger" style="font-size: 15px; font-weight: 600;">-0.00%</span>
                 </div>
             </div>
             
-            <div class="result-item">
-                Preço de Liquidação: <span id="liq-price">$0.00</span>
+            <div class="result-item" style="border-top: 1px solid #444; padding-top: 12px; margin-top: 12px;">
+                Preço de Liquidação: <span id="res-liq">$0.00</span>
             </div>
             
-            <div class="alert-box" id="alert-liquidation">
+            <div id="alerta-liq">
                 ⚠️ PERIGO: Liquidação antes do Stop! Reduza a alavancagem.
             </div>
         </div>
     </div>
 
+    <script>
+        function formatarNumero(valor, decimais = 2) {
+            return valor.toLocaleString('en-US', {
+                minimumFractionDigits: decimais,
+                maximumFractionDigits: decimais
+            });
+        }
+
+        function parseValor(str) {
+            if (!str) return 0;
+            const limpo = str.toString().replace(/,/g, '');
+            return parseFloat(limpo) || 0;
+        }
+
+        function toggleRisco() {
+            const inputRisco = document.getElementById('risco');
+            const valorAtual = parseValor(inputRisco.value);
+
+            if(!isNaN(valorAtual)) {
+                inputRisco.value = formatarNumero(valorAtual, 2);
+            }
+            calcular();
+        }
+
+        document.querySelectorAll('#capital, #risco, #entrada, #stop').forEach(input => {
+            input.addEventListener('blur', function() {
+                const val = parseValor(this.value);
+                if (!isNaN(val)) {
+                    const decimais = (this.id === 'entrada' || this.id === 'stop') && val < 1 ? 5 : 2;
+                    this.value = formatarNumero(val, decimais);
+                }
+                calcular();
+            });
+        });
+
+        async function buscarPreco() {
+            let sigla = document.getElementById('cripto-busca').value.toUpperCase().trim();
+            const status = document.getElementById('api-status');
+            
+            if(!sigla) return;
+            
+            if(!sigla.includes('USDT') && !sigla.includes('BUSD') && !sigla.includes('USDC')) {
+                sigla += 'USDT';
+            }
+
+            status.innerText = "Buscando preço ao vivo...";
+            status.style.color = "#aaa";
+
+            try {
+                const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sigla}`);
+                if(!response.ok) throw new Error("Ativo não encontrado");
+                
+                const data = await response.json();
+                const precoAtivo = parseFloat(data.price);
+                
+                const decimais = precoAtivo < 1 ? 5 : 2;
+                document.getElementById('entrada').value = formatarNumero(precoAtivo, decimais);
+                
+                const tipo = document.querySelector('input[name="tipo"]:checked').value;
+                const distStop = tipo === 'long' ? 0.98 : 1.02; 
+                
+                document.getElementById('stop').value = formatarNumero(precoAtivo * distStop, decimais);
+                
+                status.innerText = `Cotação de ${sigla} atualizada!`;
+                status.style.color = "#4ade80";
+                
+                calcular();
+                
+            } catch (erro) {
+                status.innerText = "Erro: Sigla inválida na Binance.";
+                status.style.color = "#f87171";
+            }
+        }
+
+        document.getElementById('cripto-busca').addEventListener('change', buscarPreco);
+        document.getElementById('cripto-busca').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') buscarPreco();
+        });
+
+        function calcular() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
+            const cap = parseValor(document.getElementById('capital').value);
+            const riscoInput = parseValor(document.getElementById('risco').value);
+            const isDollar = document.getElementById('risco-tipo-checkbox').checked; 
+            const entrada = parseValor(document.getElementById('entrada').value);
+            const stop = parseValor(document.getElementById('stop').value);
+            const lev = parseInt(document.getElementById('alavancagem').value);
+            
+            document.getElementById('lev-val').innerText = lev;
+            
+            if(!cap || isNaN(riscoInput) || !entrada || !stop) return;
+            if(tipo === 'long' && entrada <= stop) return;
+            if(tipo === 'short' && entrada >= stop) return;
+
+            let riscoFinanceiro;
+            let riscoPct;
+            
+            if (!isDollar) {
+                riscoPct = riscoInput;
+                riscoFinanceiro = cap * (riscoPct / 100);
+            } else {
+                riscoFinanceiro = riscoInput; 
+                riscoPct = (cap > 0) ? (riscoFinanceiro / cap) * 100 : 0;
+            }
+            
+            let distanciaStopPct;
+            if(tipo === 'long') {
+                distanciaStopPct = (entrada - stop) / entrada;
+            } else {
+                distanciaStopPct = (stop - entrada) / entrada;
+            }
+            
+            const tamanhoPosicao = riscoFinanceiro / distanciaStopPct;
+            const margem = tamanhoPosicao / lev;
+            
+            let precoLiq;
+            if(tipo === 'long') {
+                precoLiq = entrada * (1 - (1 / lev));
+            } else {
+                precoLiq = entrada * (1 + (1 / lev));
+            }
+
+            document.getElementById('res-tamanho').innerText = '$' + formatarNumero(tamanhoPosicao, 2);
+            document.getElementById('res-margem').innerText = '$' + formatarNumero(margem, 2);
+            
+            document.getElementById('res-perda').innerText = '-$' + formatarNumero(riscoFinanceiro, 2);
+            document.getElementById('res-perda-pct').innerText = '-' + formatarNumero(riscoPct, 2) + '%';
+            
+            const elLiq = document.getElementById('res-liq');
+            const elAlerta = document.getElementById('alerta-liq');
+            
+            const liqDecimais = entrada < 1 ? 5 : 2;
+            elLiq.innerText = '$' + formatarNumero(precoLiq, liqDecimais);
+            
+            let perigo = false;
+            if(tipo === 'long' && precoLiq >= stop) perigo = true;
+            if(tipo === 'short' && precoLiq <= stop) perigo = true;
+
+            if(perigo) {
+                elLiq.className = 'danger';
+                elAlerta.style.display = 'block';
+            } else {
+                elLiq.className = 'warning';
+                elAlerta.style.display = 'none';
+            }
+        }
+
+        document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const entrada = parseValor(document.getElementById('entrada').value);
+                const decimais = entrada < 1 ? 5 : 2;
+                if(e.target.value === 'long') {
+                    document.getElementById('stop').value = formatarNumero(entrada * 0.98, decimais); 
+                } else {
+                    document.getElementById('stop').value = formatarNumero(entrada * 1.02, decimais); 
+                }
+                calcular();
+            });
+        });
+
+        document.querySelectorAll('#capital, #risco, #entrada, #stop').forEach(input => {
+            input.addEventListener('input', calcular);
+        });
+        
+        calcular();
+    </script>
 </body>
 </html>
