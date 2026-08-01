@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora de Futuros - Gestão de Risco</title>
+    <style>
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #121212; color: #e0e0e0; padding: 20px; display: flex; justify-content: center; }
+        .calc-container { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 400px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.8); border: 1px solid #333; }
+        h2 { text-align: center; margin-top: 0; color: #f3ba2f; font-size: 20px;}
+        .input-group { margin-bottom: 15px; }
+        label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #aaa; }
+        input[type="number"] { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff; box-sizing: border-box; font-size: 16px; }
+        input[type="number"]:focus { outline: none; border-color: #f3ba2f; }
+        input[type="range"] { width: 100%; margin-top: 10px; accent-color: #f3ba2f; }
+        .results { margin-top: 25px; padding: 15px; background: #252525; border-radius: 8px; border: 1px solid #333; }
+        .result-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 15px; }
+        .result-item span:last-child { font-weight: 600; color: #4ade80; }
+        .danger { color: #f87171 !important; }
+        .warning { color: #fbbf24 !important; }
+        #alerta-liq { color: #f87171; font-size: 13px; margin-top: 10px; text-align: center; display: none; font-weight: 600; background: rgba(248, 113, 113, 0.1); padding: 8px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="calc-container">
+        <h2>Calculadora Dinâmica (Long)</h2>
+        
+        <div class="input-group">
+            <label>Capital Total ($)</label>
+            <input type="number" id="capital" value="100" step="1">
+        </div>
+        
+        <div class="input-group">
+            <label>Risco por Trade (%)</label>
+            <input type="number" id="risco" value="1" step="0.1">
+        </div>
+        
+        <div class="input-group">
+            <label>Preço de Entrada ($)</label>
+            <input type="number" id="entrada" value="3000" step="1">
+        </div>
+        
+        <div class="input-group">
+            <label>Preço do Stop Loss ($)</label>
+            <input type="number" id="stop" value="2850" step="1">
+        </div>
+        
+        <div class="input-group">
+            <label><span>Alavancagem</span> <span style="color:#fff; font-weight:bold"><span id="lev-val">10</span>x</span></label>
+            <input type="range" id="alavancagem" min="1" max="100" value="10">
+        </div>
+        
+        <div class="results">
+            <div class="result-item">Tamanho da Posição: <span id="res-tamanho">$0.00</span></div>
+            <div class="result-item">Margem Exigida: <span id="res-margem">$0.00</span></div>
+            <div class="result-item">Perda Financeira Fixa: <span id="res-perda" class="danger">-$0.00</span></div>
+            
+            <div class="result-item" style="border-top: 1px solid #444; padding-top: 12px; margin-top: 12px;">
+                Preço de Liquidação: <span id="res-liq">$0.00</span>
+            </div>
+            
+            <div id="alerta-liq">
+                ⚠️ PERIGO: Liquidação antes do Stop! Reduza a alavancagem.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            const cap = parseFloat(document.getElementById('capital').value);
+            const riscoPct = parseFloat(document.getElementById('risco').value);
+            const entrada = parseFloat(document.getElementById('entrada').value);
+            const stop = parseFloat(document.getElementById('stop').value);
+            const lev = parseInt(document.getElementById('alavancagem').value);
+            
+            document.getElementById('lev-val').innerText = lev;
+            
+            if(!cap || !riscoPct || !entrada || !stop || entrada <= stop) {
+                return; // Aguarda dados válidos (Assumindo Long, entrada > stop)
+            }
+
+            // Matemática Central
+            const riscoFinanceiro = cap * (riscoPct / 100);
+            const distanciaStopPct = (entrada - stop) / entrada;
+            
+            const tamanhoPosicao = riscoFinanceiro / distanciaStopPct;
+            const margem = tamanhoPosicao / lev;
+            
+            // Cálculo padrão de Liquidação para Long: Entrada - (Entrada / Alavancagem)
+            const precoLiq = entrada * (1 - (1 / lev));
+
+            // Atualiza Interface
+            document.getElementById('res-tamanho').innerText = '$' + tamanhoPosicao.toFixed(2);
+            document.getElementById('res-margem').innerText = '$' + margem.toFixed(2);
+            document.getElementById('res-perda').innerText = '-$' + riscoFinanceiro.toFixed(2);
+            
+            const elLiq = document.getElementById('res-liq');
+            const elAlerta = document.getElementById('alerta-liq');
+            
+            elLiq.innerText = '$' + precoLiq.toFixed(2);
+            
+            // Trava de segurança: Se a corretora te liquidar antes de bater no stop
+            if(precoLiq >= stop) {
+                elLiq.className = 'danger';
+                elAlerta.style.display = 'block';
+            } else {
+                elLiq.className = 'warning';
+                elAlerta.style.display = 'none';
+            }
+        }
+
+        // Gatilhos de atualização em tempo real
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', calcular);
+        });
+        
+        // Dispara o cálculo inicial
+        calcular();
+    </script>
+</body>
+</html>
