@@ -7,8 +7,16 @@
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #121212; color: #e0e0e0; padding: 20px; display: flex; justify-content: center; }
         .calc-container { background: #1e1e1e; padding: 25px; border-radius: 12px; max-width: 400px; width: 100%; box-shadow: 0 8px 24px rgba(0,0,0,0.8); border: 1px solid #333; }
         h2 { text-align: center; margin-top: 0; color: #f3ba2f; font-size: 20px;}
+        
+        /* Estilos dos botões Long/Short */
+        .trade-type { display: flex; gap: 10px; margin-bottom: 20px; }
+        .trade-type input { display: none; }
+        .trade-type label { flex: 1; text-align: center; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; border: 1px solid #444; background: #2a2a2a; color: #aaa; transition: 0.3s; font-size: 14px;}
+        #long:checked + .btn-long { background: #4ade80; color: #121212; border-color: #4ade80; }
+        #short:checked + .btn-short { background: #f87171; color: #121212; border-color: #f87171; }
+
         .input-group { margin-bottom: 15px; }
-        label { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #aaa; }
+        label:not(.btn-long):not(.btn-short) { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px; color: #aaa; }
         input[type="number"] { width: 100%; padding: 10px; border: 1px solid #444; border-radius: 6px; background: #2a2a2a; color: #fff; box-sizing: border-box; font-size: 16px; }
         input[type="number"]:focus { outline: none; border-color: #f3ba2f; }
         input[type="range"] { width: 100%; margin-top: 10px; accent-color: #f3ba2f; }
@@ -22,7 +30,16 @@
 </head>
 <body>
     <div class="calc-container">
-        <h2>Calculadora Dinâmica (Long)</h2>
+        <h2 id="titulo-calc">Calculadora Dinâmica</h2>
+        
+        <!-- Botões de Seleção -->
+        <div class="trade-type">
+            <input type="radio" id="long" name="tipo" value="long" checked>
+            <label for="long" class="btn-long">Comprado (Long)</label>
+            
+            <input type="radio" id="short" name="tipo" value="short">
+            <label for="short" class="btn-short">Vendido (Short)</label>
+        </div>
         
         <div class="input-group">
             <label>Capital Total ($)</label>
@@ -66,6 +83,7 @@
 
     <script>
         function calcular() {
+            const tipo = document.querySelector('input[name="tipo"]:checked').value;
             const cap = parseFloat(document.getElementById('capital').value);
             const riscoPct = parseFloat(document.getElementById('risco').value);
             const entrada = parseFloat(document.getElementById('entrada').value);
@@ -74,19 +92,31 @@
             
             document.getElementById('lev-val').innerText = lev;
             
-            if(!cap || !riscoPct || !entrada || !stop || entrada <= stop) {
-                return; // Aguarda dados válidos (Assumindo Long, entrada > stop)
-            }
+            // Validações básicas e de coerência do Stop Loss
+            if(!cap || !riscoPct || !entrada || !stop) return;
+            if(tipo === 'long' && entrada <= stop) return; // Em Long, stop tem que ser menor
+            if(tipo === 'short' && entrada >= stop) return; // Em Short, stop tem que ser maior
 
             // Matemática Central
             const riscoFinanceiro = cap * (riscoPct / 100);
-            const distanciaStopPct = (entrada - stop) / entrada;
+            
+            let distanciaStopPct;
+            if(tipo === 'long') {
+                distanciaStopPct = (entrada - stop) / entrada;
+            } else {
+                distanciaStopPct = (stop - entrada) / entrada;
+            }
             
             const tamanhoPosicao = riscoFinanceiro / distanciaStopPct;
             const margem = tamanhoPosicao / lev;
             
-            // Cálculo padrão de Liquidação para Long: Entrada - (Entrada / Alavancagem)
-            const precoLiq = entrada * (1 - (1 / lev));
+            // Cálculo de Liquidação
+            let precoLiq;
+            if(tipo === 'long') {
+                precoLiq = entrada * (1 - (1 / lev));
+            } else {
+                precoLiq = entrada * (1 + (1 / lev));
+            }
 
             // Atualiza Interface
             document.getElementById('res-tamanho').innerText = '$' + tamanhoPosicao.toFixed(2);
@@ -98,8 +128,12 @@
             
             elLiq.innerText = '$' + precoLiq.toFixed(2);
             
-            // Trava de segurança: Se a corretora te liquidar antes de bater no stop
-            if(precoLiq >= stop) {
+            // Trava de segurança: Verifica se a corretora vai liquidar antes do stop
+            let perigo = false;
+            if(tipo === 'long' && precoLiq >= stop) perigo = true;
+            if(tipo === 'short' && precoLiq <= stop) perigo = true;
+
+            if(perigo) {
                 elLiq.className = 'danger';
                 elAlerta.style.display = 'block';
             } else {
@@ -107,6 +141,19 @@
                 elAlerta.style.display = 'none';
             }
         }
+
+        // Muda automaticamente os valores de exemplo ao trocar Long/Short para não travar o cálculo
+        document.querySelectorAll('input[name="tipo"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const entrada = parseFloat(document.getElementById('entrada').value);
+                if(e.target.value === 'long') {
+                    document.getElementById('stop').value = (entrada * 0.95).toFixed(0); // Stop 5% abaixo
+                } else {
+                    document.getElementById('stop').value = (entrada * 1.05).toFixed(0); // Stop 5% acima
+                }
+                calcular();
+            });
+        });
 
         // Gatilhos de atualização em tempo real
         document.querySelectorAll('input').forEach(input => {
