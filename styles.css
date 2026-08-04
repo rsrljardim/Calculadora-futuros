@@ -1770,6 +1770,41 @@ input:checked + .slider.round:before {
 }
 
 /* =========================================================
+   FOOTER
+   ========================================================= */
+.app-footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 16px;
+  margin-top: 24px;
+  border-top: 1px solid var(--card-border);
+}
+
+.github-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+}
+
+.github-link i {
+  font-size: 18px;
+}
+
+.github-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* =========================================================
    RESPONSIVE MEDIA QUERIES
    ========================================================= */
 @media (max-width: 900px) {

@@ -30,7 +30,7 @@ A verdadeira "jóia" do sistema. Em vez de escolher uma alavancagem aleatória, 
 - O motor de Engenharia Reversa fará o cálculo de trás pra frente, considerando o preço do Stop e as taxas escondidas.
 - **Resultado Automático:** Ele te entregará, mastigado, qual deve ser o Tamanho da sua Posição, a Margem Exigida e a **Alavancagem Recomendada**. Você opera o seu capital com risco estritamente controlado.
 
-### Modos de Cálculo:
+### 3. Modos de Cálculo:
 - **Modo Margem (Fixa):** O sistema acha a alavancagem ideal para uma margem que você já definiu.
 - **Modo Capital (Total):** Você tem liberdade para ajustar a alavancagem (que definirá apenas sua margem alocada), travando matematicamente o seu Tamanho de Posição para não furar a sua perda aceitável estipulada.
 
