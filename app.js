@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     simMargem: document.getElementById('sim-margem'),
     simAlvo: document.getElementById('sim-alvo'),
     simStop: document.getElementById('sim-stop'),
+    simIncludeFees: document.getElementById('sim-include-fees'),
     leverageSlider: document.getElementById('leverage-slider'),
     leverageDisplayVal: document.getElementById('leverage-display-val'),
     sliderFill: document.getElementById('slider-fill'),
@@ -381,6 +382,24 @@ document.addEventListener('DOMContentLoaded', () => {
     el.simMargem.addEventListener('input', e => { state.sim.margem = parseFloat(e.target.value) || 0; calculateAll(); });
     el.simAlvo.addEventListener('input', e => { state.sim.alvo = parseFloat(e.target.value) || 0; calculateAll(); });
     el.simStop.addEventListener('input', e => { state.sim.stop = parseFloat(e.target.value) || 0; calculateAll(); });
+
+    if (el.simIncludeFees) {
+      el.simIncludeFees.addEventListener('change', (e) => {
+        if (e.target.checked) {
+          el.paramTakerFee.value = "0.050";
+          el.paramMakerFee.value = "0.020";
+          el.paramMmr.value = "0.40";
+        } else {
+          el.paramTakerFee.value = "0";
+          el.paramMakerFee.value = "0";
+          el.paramMmr.value = "0";
+        }
+        
+        el.paramTakerFee.dispatchEvent(new Event('input'));
+        el.paramMakerFee.dispatchEvent(new Event('input'));
+        el.paramMmr.dispatchEvent(new Event('input'));
+      });
+    }
 
     // Tab 2 Inputs Real-time Binding
     el.btnCalcMargem.addEventListener('click', () => setDiscCalcMode('margem'));

@@ -20,7 +20,13 @@
   <div class="app-container">
     <!-- APP BANNER -->
     <div class="app-banner">
-      <h1>TraderSim <span>- Advanced Trade Calculator</span></h1>
+      <div class="banner-icon-bg">
+        <i class="ph-fill ph-chart-polar"></i>
+      </div>
+      <div class="banner-text">
+        <h1>TraderSim</h1>
+        <p>Advanced Trade Calculator</p>
+      </div>
     </div>
 
     <!-- TOP NAVIGATION HEADER -->
@@ -210,6 +216,17 @@
         <div class="leverage-risk-indicator" id="leverage-risk-indicator">
           <i class="ph ph-shield-warning" id="leverage-risk-icon"></i>
           <span id="leverage-risk-text">Alavancagem moderada</span>
+        </div>
+      </div>
+
+      <!-- INCLUIR TAXAS TOGGLE -->
+      <div class="sim-fees-toggle-container" style="display: flex; align-items: center; margin-top: 8px; margin-bottom: 8px; gap: 16px;">
+        <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.5px;">INCLUIR TAXAS</span>
+        <div class="switch-toggle-wrapper">
+          <label class="switch-label">
+            <input type="checkbox" id="sim-include-fees" checked>
+            <span class="slider round"></span>
+          </label>
         </div>
       </div>
 
