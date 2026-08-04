@@ -30,14 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tab 2 Inputs
     disc: {
-      calcMode: 'margem', // 'margem' | 'capital'
+      calcMode: 'capital', // 'margem' | 'capital'
       alavancagem: 10,
       manualLeverage: false,
       entrada: 63171,
       margem: 1000,
       stop: 60012,
       lossVal: 50,
-      lossMode: 'percent', // 'percent' | 'price'
+      lossMode: 'price', // 'percent' | 'price'
       includeFees: true
     },
 
@@ -60,8 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Tabs
     tabSimular: document.getElementById('tab-simular'),
     tabDescobrir: document.getElementById('tab-descobrir'),
+    tabManual: document.getElementById('tab-manual'),
     viewSimular: document.getElementById('view-simular'),
     viewDescobrir: document.getElementById('view-descobrir'),
+    viewManual: document.getElementById('view-manual'),
 
     // Currency
     btnUsd: document.getElementById('btn-usd'),
@@ -239,6 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Nav Tabs Switcher
     el.tabSimular.addEventListener('click', () => switchTab('simular'));
     el.tabDescobrir.addEventListener('click', () => switchTab('descobrir'));
+    el.tabManual.addEventListener('click', () => switchTab('manual'));
 
     // Currency Toggle
     el.btnUsd.addEventListener('click', () => setCurrency('USD'));
@@ -679,18 +682,35 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- TAB & STATE SWITCHERS ---
   function switchTab(tab) {
     state.currentTab = tab;
+    
+    // Reset all tabs
+    el.tabSimular.classList.remove('active');
+    el.tabDescobrir.classList.remove('active');
+    el.tabManual.classList.remove('active');
+    
+    // Reset all views
+    el.viewSimular.classList.remove('active');
+    el.viewDescobrir.classList.remove('active');
+    el.viewManual.classList.remove('active');
+    
+    // Activate selected
     if (tab === 'simular') {
       el.tabSimular.classList.add('active');
-      el.tabDescobrir.classList.remove('active');
       el.viewSimular.classList.add('active');
-      el.viewDescobrir.classList.remove('active');
-    } else {
+    } else if (tab === 'descobrir') {
       el.tabDescobrir.classList.add('active');
-      el.tabSimular.classList.remove('active');
       el.viewDescobrir.classList.add('active');
-      el.viewSimular.classList.remove('active');
+    } else if (tab === 'manual') {
+      el.tabManual.classList.add('active');
+      el.viewManual.classList.add('active');
     }
-    calculateAll();
+    
+    if (tab === 'manual') {
+      document.body.classList.add('manual-active');
+    } else {
+      document.body.classList.remove('manual-active');
+      calculateAll();
+    }
   }
 
   function setCurrency(curr) {
@@ -715,6 +735,20 @@ document.addEventListener('DOMContentLoaded', () => {
       el.btnShort.classList.add('active');
       el.btnLong.classList.remove('active');
     }
+
+    // Auto-adjust stop to 5% from current asset price
+    if (state.asset && state.asset.price > 0) {
+      if (dir === 'long') {
+        state.sim.stop = roundPrice(state.asset.price * 0.95);
+        state.disc.stop = roundPrice(state.asset.price * 0.95);
+      } else {
+        state.sim.stop = roundPrice(state.asset.price * 1.05);
+        state.disc.stop = roundPrice(state.asset.price * 1.05);
+      }
+      el.simStop.value = state.sim.stop >= 1 ? state.sim.stop.toFixed(2) : state.sim.stop;
+      el.discStop.value = state.disc.stop >= 1 ? state.disc.stop.toFixed(2) : state.disc.stop;
+    }
+
     calculateAll();
   }
 

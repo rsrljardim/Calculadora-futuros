@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de Alavancagem Crypto & Simulação de Posição</title>
+  <title>TraderSim - Advanced Trade Calculator</title>
   <meta name="description" content="Simule operações de criptomoedas, calcule alavancagem recomendada, preço de liquidação, ROE e gerenciamento de risco com alta precisão.">
   
   <!-- Google Fonts: Plus Jakarta Sans -->
@@ -18,7 +18,11 @@
 </head>
 <body>
   <div class="app-container">
-    
+    <!-- APP BANNER -->
+    <div class="app-banner">
+      <h1>TraderSim <span>- Advanced Trade Calculator</span></h1>
+    </div>
+
     <!-- TOP NAVIGATION HEADER -->
     <header class="top-header">
       <div class="nav-tabs-wrapper">
@@ -33,6 +37,12 @@
             <path d="M468-240q-96-5-162-74t-66-166q0-100 70-170t170-70q97 0 166 66t74 162l-84-25q-13-54-56-88.5T480-640q-66 0-113 47t-47 113q0 57 34.5 100t88.5 56l25 84Zm48 158q-9 2-18 2h-18q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480v18q0 9-2 18l-78-24v-12q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93h12l24 78Zm305 22L650-231 600-80 480-480l400 120-151 50 171 171-79 79Z"/>
           </svg>
           <span>Descobrir alavancagem</span>
+        </button>
+        <button id="tab-manual" class="nav-tab">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+            <path d="M260-320q47 0 91.5 10.5T440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-14 69.5-21t70.5-7Zm260 42q44-21 88.5-31.5T700-320q36 0 70.5 7t69.5 21v-396q-33-14-68.5-21t-71.5-7q-47 0-93 12t-87 36v394Zm-40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q58 0 113.5 15T480-740q51-30 106.5-45T700-800q52 0 102 12t96 36q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59ZM280-400Z"/>
+          </svg>
+          <span>Como utilizar?</span>
         </button>
       </div>
 
@@ -431,7 +441,7 @@
 
           <div class="input-with-presets">
             <div class="input-with-symbol">
-              <span class="curr-symbol" id="disc-loss-symbol">%</span>
+              <span class="curr-symbol" id="disc-loss-symbol">$</span>
               <input type="number" id="disc-loss-val" value="50.00" step="any">
             </div>
             
@@ -472,8 +482,8 @@
 
         <div class="form-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
           <div class="mode-toggle-pill" style="margin-bottom: 4px; display: flex; width: 100%;">
-            <button class="mode-btn active" id="btn-calc-margem" style="flex: 1; padding: 4px 0; font-size: 11px;">Margem</button>
-            <button class="mode-btn" id="btn-calc-capital" style="flex: 1; padding: 4px 0; font-size: 11px;">Capital</button>
+            <button class="mode-btn active" id="btn-calc-capital" style="flex: 1; padding: 4px 0; font-size: 11px;">Capital</button>
+            <button class="mode-btn" id="btn-calc-margem" style="flex: 1; padding: 4px 0; font-size: 11px;">Margem</button>
           </div>
           <div class="input-with-symbol">
             <span class="curr-symbol">$</span>
@@ -630,6 +640,60 @@
 
       </section>
 
+    </main>
+
+    <!-- ======================================================= -->
+    <!-- VIEW 3: MANUAL DO USUÁRIO                               -->
+    <!-- ======================================================= -->
+    <main id="view-manual" class="calculator-view">
+      <div class="manual-content">
+        <h2>⚡ TraderSim - Advanced Trade Calculator</h2>
+        <p>A <strong>TraderSim - Advanced Trade Calculator</strong> não é apenas mais uma calculadora na web. É um motor de cálculo de risco e alavancagem em grau-institucional (Exchange-Grade), projetado para proteger o capital de traders e simular com precisão cirúrgica o comportamento de corretoras reais como <strong>Binance</strong> e <strong>Bybit</strong>.</p>
+        
+        <p>Enquanto a maioria das calculadoras assume cenários mágicos sem taxas ou fórmulas equivocadas, o nosso sistema utiliza engenharia reversa para colocar o <strong>Gerenciamento de Risco</strong> em primeiro lugar.</p>
+        
+        <hr>
+
+        <h3>🎯 Por que a TraderSim é diferente?</h3>
+        <ul>
+          <li><strong>Matemática Exchange-Grade:</strong> Emulamos exatamente como o motor de risco de uma Exchange funciona por baixo dos panos. Calculamos a Margem de Manutenção (MMR) corretamente para evitar liquidações irreais e prever seu <em>Margin Call</em> no centavo.</li>
+          <li><strong>Impacto das Taxas (Fees Ocultos):</strong> Diferente de calculadoras genéricas, descontamos as taxas Taker/Maker de abertura e fechamento da posição no volume alavancado. Em altas alavancagens (50x-100x), isso salva contas de serem esvaziadas antes do Stop Loss.</li>
+          <li><strong>API em Tempo Real:</strong> Conectada diretamente ao mercado (via API), a calculadora puxa o preço instantâneo e a variação 24h dos ativos da Binance/Bybit. Tudo sempre atualizado.</li>
+          <li><strong>Alerta de Funding Rate:</strong> Calculamos e exibimos o impacto diário/semanal da Taxa de Financiamento (<em>Funding Rate</em>), mostrando o custo oculto de segurar posições abertas.</li>
+        </ul>
+
+        <hr>
+
+        <h3>🛠 Módulos do Sistema</h3>
+
+        <h4>1. Simular Operação (A Calculadora Clássica Turbinada)</h4>
+        <p>Feita para o trader que já sabe onde quer entrar e sair, mas precisa ver as métricas frias:</p>
+        <ul>
+          <li>Insira <strong>Entrada, Stop, Alvo, Margem e Alavancagem</strong>.</li>
+          <li>Veja visualmente as métricas de Risco/Retorno (ROE).</li>
+          <li>Visualize a distância (Folga) entre o seu Stop Loss e o momento em que a corretora te liquida compulsoriamente.</li>
+          <li>Alertas visuais e sonoros mudam a paleta de cores se a alavancagem ou perda projetada ameaçar estourar a sua banca.</li>
+        </ul>
+
+        <h4>2. Descobrir Alavancagem (Engenharia Reversa de Risco)</h4>
+        <p>A verdadeira "jóia" do sistema. Em vez de escolher uma alavancagem aleatória, o motor de cálculo trabalha para você.</p>
+        <ul>
+          <li>Diga ao sistema: <em>"Eu aceito perder no máximo $10 se eu for stopado"</em>.</li>
+          <li>O motor de Engenharia Reversa fará o cálculo de trás pra frente, considerando o preço do Stop e as taxas escondidas.</li>
+          <li><strong>Resultado Automático:</strong> Ele te entregará, mastigado, qual deve ser o Tamanho da sua Posição, a Margem Exigida e a <strong>Alavancagem Recomendada</strong>. Você opera o seu capital com risco estritamente controlado.</li>
+        </ul>
+
+        <h4>Modos de Cálculo:</h4>
+        <ul>
+          <li><strong>Modo Margem (Fixa):</strong> O sistema acha a alavancagem ideal para uma margem que você já definiu.</li>
+          <li><strong>Modo Capital (Total):</strong> Você tem liberdade para ajustar a alavancagem (que definirá apenas sua margem alocada), travando matematicamente o seu Tamanho de Posição para não furar a sua perda aceitável estipulada.</li>
+        </ul>
+
+        <hr>
+
+        <h3>🚀 Próximos Passos</h3>
+        <p>Seja você um novato operando $100 ou um profissional gerenciando $100.000, as regras da matemática não perdoam. Use a TraderSim como o seu copiloto antes de clicar no botão "Comprar" ou "Vender" na sua Exchange favorita.</p>
+      </div>
     </main>
 
     <!-- TOAST NOTIFICATION FOR SHARE / COPIED -->
